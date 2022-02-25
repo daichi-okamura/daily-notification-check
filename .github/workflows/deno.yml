@@ -8,7 +8,7 @@ on:
 jobs:
   test:
     runs-on: ubuntu-latest
-
+    name: "Diff"
     steps:
       - name: Setup repo
         uses: actions/checkout@v2
@@ -19,12 +19,23 @@ jobs:
         with:
           deno-version: v1.x
 
-      # Uncomment this step to verify the use of 'deno fmt' on each commit.
-      # - name: Verify formatting
-      #   run: deno fmt --check
+      - name: Download last-time result JSON
+        uses: actions/download-artifact@v2
+        with:
+          name: result-json
 
-      - name: Run linter
-        run: deno lint
+      - name: Run Script
+        id: diff
+        run: |
+          deno run -A --unstable https://raw.githubusercontent.com/daichi-okamura/deno-scripts/main/oshirase-list.ts
 
-      - name: Run tests
-        run: deno test -A --unstable
+      - name: Upload result JSON
+        uses: actions/upload-artifact@v2
+        with:
+          name: result-json
+          path: old.json
+          retention-days: 8
+
+      - name: Notify
+        run: |
+          echo ${{diff-result.outputs.test}}
