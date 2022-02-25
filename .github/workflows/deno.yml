@@ -38,4 +38,4 @@ jobs:
 
       - name: Notify
         run: |
-          echo ${{diff-result.outputs.test}}
+          echo ${{diff.outputs.test}}
