@@ -1,4 +1,5 @@
-# deno-scripts
+# daily-notification-check
+
 ## What is Deno ?
 https://deno.land/manual
 
@@ -7,7 +8,7 @@ https://deno.land/manual
 brew install deno
 ```
 
-## oshirase-list.ts
+## notification-diff.ts
 Requires https://deno.land/x/puppeteer@9.0.2
 ```
 deno run -A --unstable https://deno.land/x/puppeteer@9.0.2/install.ts
@@ -15,5 +16,5 @@ deno run -A --unstable https://deno.land/x/puppeteer@9.0.2/install.ts
 
 Run command
 ```
-deno run -A --unstable https://raw.githubusercontent.com/daichi-okamura/deno-scripts/main/oshirase-list.ts
+deno run -A --unstable https://raw.githubusercontent.com/daichi-okamura/deno-scripts/main/notification-diff.ts
 ```
