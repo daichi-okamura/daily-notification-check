@@ -1,42 +1,73 @@
 name: Deno
 
 on:
-#  schedule:
-    # 毎週月曜日 10:00
-#    - cron: '0 10 * * 1'
+  #  schedule:
+  # 毎週月曜日 10:00
+  #    - cron: '0 10 * * 1'
   workflow_dispatch:
 
-jobs:
-  test:
-    runs-on: ubuntu-latest
-    name: "Diff"
-    steps:
-      - name: Setup repo
-        uses: actions/checkout@v2
+env:
+  SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK_URL }}
+  SLACK_USERNAME: "bot"
+  SLACK_CHANNEL: ${{ secrets.SLACK_CHANNEL_ID }}
+  SLACK_ICON_EMOJI: ":yawning_face:"
 
-      - name: Setup Deno
-        # uses: denoland/setup-deno@v1
-        uses: denoland/setup-deno@004814556e37c54a2f6e31384c9e18e983317366
+jobs:
+  diff-check:
+    runs-on: ubuntu-latest
+    name: "お知らせ一覧の差分チェク"
+    continue-on-error: true
+    outputs:
+      result: ${{ steps.exec.outputs.result }}
+    steps:
+      - uses: actions/checkout@v2
+
+      - uses: denoland/setup-deno@004814556e37c54a2f6e31384c9e18e983317366
         with:
           deno-version: v1.x
 
-      - name: Download last-time result JSON
-        uses: actions/download-artifact@v2
+      - uses: aochmann/actions-download-artifact@1.0.4
+        continue-on-error: true
         with:
+          github_token: ${{secrets.GITHUB_TOKEN}}
           name: result-json
+          latest: true
 
-      - name: Run Script
-        id: diff
+      - name: Install puppeteer
         run: |
-          deno run -A --unstable https://raw.githubusercontent.com/daichi-okamura/deno-scripts/main/oshirase-list.ts
+          PUPPETEER_PRODUCT=chrome
+          deno run -A --unstable https://deno.land/x/puppeteer@9.0.2/install.ts
 
-      - name: Upload result JSON
-        uses: actions/upload-artifact@v2
+      - name: Run script
+        id: exec
+        run: |
+          RESULT=$(                                 \
+            deno run -A --unstable oshirase-list.ts \
+          )
+          echo "::set-output name=result::${RESULT}"
+
+      - uses: actions/upload-artifact@v2
         with:
           name: result-json
           path: old.json
           retention-days: 8
 
-      - name: Notify
+  notification:
+    runs-on: ubuntu-latest
+    name: "Slack通知"
+    needs: diff-check
+    steps:
+      - id: check
+        continue-on-error: true
         run: |
-          echo ${{diff.outputs.test}}
+          if [ "${{ needs.diff-check.outputs.result }}" = "[]" ]; then
+            exit 1
+          fi
+
+      - name: slack
+        if: success()
+        uses: rtCamp/action-slack-notify@v2
+        env:
+          SLACK_TITLE: "お知らせ一覧の差分を検知したよ"
+          SLACK_COLOR: ${{ job.status }}
+          SLACK_MESSAGE: "${{ needs.diff-check.outputs.result }}"
