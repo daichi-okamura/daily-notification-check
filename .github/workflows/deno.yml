@@ -40,7 +40,7 @@ jobs:
         id: exec
         run: |
           RESULT=$(                                 \
-            deno run -A --unstable oshirase-list.ts \
+            deno run -A --unstable notification-diff.ts \
           )
           echo "::set-output name=result::${RESULT}"
 
