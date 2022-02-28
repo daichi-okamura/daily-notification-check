@@ -1,10 +1,8 @@
-name: Deno
+name: "電子請求受付システムのお知らせ一覧チェック"
 
 on:
-  #  schedule:
-  # 毎週月曜日 10:00
-  #    - cron: '0 10 * * 1'
-  workflow_dispatch:
+  schedule:
+    - cron: '0 10 * * *'
 
 env:
   SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK_URL }}
@@ -15,7 +13,7 @@ env:
 jobs:
   diff-check:
     runs-on: ubuntu-latest
-    name: "お知らせ一覧の差分チェク"
+    name: "お知らせ一覧の差分取得"
     continue-on-error: true
     outputs:
       result: ${{ steps.exec.outputs.result }}
