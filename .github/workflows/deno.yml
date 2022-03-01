@@ -2,7 +2,7 @@ name: "電子請求受付システムのお知らせ一覧チェック"
 
 on:
   schedule:
-    - cron: '0 10 * * *'
+    - cron: '0 1 * * *'
 
 env:
   SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK_URL }}
