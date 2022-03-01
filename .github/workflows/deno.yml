@@ -56,7 +56,6 @@ jobs:
     needs: diff-check
     steps:
       - id: check
-        continue-on-error: true
         run: |
           if [ "${{ needs.diff-check.outputs.result }}" = "[]" ]; then
             exit 1
