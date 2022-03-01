@@ -2,7 +2,7 @@ name: "電子請求受付システムのお知らせ一覧チェック"
 
 on:
   schedule:
-    - cron: '0 10 * * *'
+    - cron: '0 1 * * *'
 
 env:
   SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK_URL }}
@@ -56,7 +56,6 @@ jobs:
     needs: diff-check
     steps:
       - id: check
-        continue-on-error: true
         run: |
           if [ "${{ needs.diff-check.outputs.result }}" = "[]" ]; then
             exit 1
